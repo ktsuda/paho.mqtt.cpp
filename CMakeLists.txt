@@ -50,6 +50,17 @@ endif()
 
 ## --- Find Paho C or build it, if reqested ---
 
+if(PAHO_WITH_SSL)
+  find_package(OpenSSL REQUIRED)
+  set(PAHO_MQTT_C_LIB paho-mqtt3as)
+else()
+  set(PAHO_MQTT_C_LIB paho-mqtt3a)
+endif()
+
+if(PAHO_BUILD_STATIC AND NOT PAHO_BUILD_SHARED)
+  set(PAHO_MQTT_C_LIB ${PAHO_MQTT_C_LIB}-static)
+endif()
+
 if(PAHO_WITH_MQTT_C)
   message(STATUS "Paho C: Bundled")
 
@@ -57,7 +68,7 @@ if(PAHO_WITH_MQTT_C)
   set(PAHO_ENABLE_TESTING FALSE CACHE BOOL "No Paho C tests")
   set(PAHO_HIGH_PERFORMANCE TRUE CACHE BOOL "Paho C high performance")
 
-  add_subdirectory(${PROJECT_SOURCE_DIR}/externals/paho-mqtt-c)
+  add_subdirectory(${PROJECT_SOURCE_DIR}/src/externals/paho-mqtt-c)
 
   ## Alias namespace so that the full names can be used with the subdir.
   if(PAHO_BUILD_SHARED)
@@ -83,16 +94,7 @@ else()
   find_package(eclipse-paho-mqtt-c REQUIRED)
 endif()
 
-if(PAHO_WITH_SSL)
-  find_package(OpenSSL REQUIRED)
-  set(PAHO_MQTT_C_LIB eclipse-paho-mqtt-c::paho-mqtt3as)
-else()
-  set(PAHO_MQTT_C_LIB eclipse-paho-mqtt-c::paho-mqtt3a)
-endif()
-
-if(PAHO_BUILD_STATIC AND NOT PAHO_BUILD_SHARED)
-  set(PAHO_MQTT_C_LIB ${PAHO_MQTT_C_LIB}-static)
-endif()
+set(PAHO_MQTT_C_LIB "eclipse-paho-mqtt-c::${PAHO_MQTT_C_LIB}")
 
 ## --- C++11 build flags ---
 
